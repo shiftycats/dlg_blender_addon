@@ -38,15 +38,15 @@ jobs:
       run: |
         echo "VERSION=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
         echo "VERSION_ABBREV=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
-        echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
-        echo "should-update-manifest=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
+        echo "IS_TAG_ON_HEAD=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
+        echo "SHOULD_UPDATE_MANIFEST=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
         
     - name: Return info
       run: |
         echo "$VERSION"
         echo "$VERSION_ABBREV"
-        echo "is-tag-on-head: $([ ${{ steps.info.outputs.is-tag-on-head }} ] && echo true || echo false)"
-        echo "should-update-manifest: $([ ${{ steps.info.outputs.should-update-manufest }} ] && echo true || echo false)"      
+        echo "is-tag-on-head: $([ $IS_TAG_ON_HEAD ] && echo true || echo false)"
+        echo "should-update-manifest: $([ $SHOULD_UPDATE_MANIFEST }} ] && echo true || echo false)"      
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1
 #      with:

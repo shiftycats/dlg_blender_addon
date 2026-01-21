@@ -47,11 +47,22 @@ jobs:
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
-        key: $.version
+        path: $.version
         value: "$VERSION"
 
     - run: echo ${{ steps.manifest-update.outcome }}
-      if: ${{ steps.release-info.outputs.is_tag_on_head }}
+      if: ${{ !steps.release-info.outputs.is_tag_on_head }}
+
+    - name: Create release branch
+      if: ${{ steps.manifest-update.outcome != 'skipped' }}
+      run: |
+        git checkout -b release/$ver tags/$ver
+        git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+        git config --local user.name "${{ github.actor }}"
+        git add -A
+        git commit -m "Set version to $version"
+      env:
+        ver: ${{ steps.release-info.outputs.version }}
     
     - name: Diff
       run: git diff

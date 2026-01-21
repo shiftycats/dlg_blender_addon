@@ -27,7 +27,7 @@ jobs:
       with:
         file: 'dlg_blender_addon/blender_manifest.toml'
         key: 'version'
-        value: ${{ github.event.inputs.version }}
+        value: '${{ github.event.inputs.version }}'
 
     - name: Get Diff
       run: git diff

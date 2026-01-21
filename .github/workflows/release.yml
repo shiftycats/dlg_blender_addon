@@ -33,7 +33,7 @@ jobs:
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
-        key: $.version
+        path: $.version
 
     - run: |
         echo "${{ steps.toml.outputs.value }}"

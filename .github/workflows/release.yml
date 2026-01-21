@@ -34,11 +34,11 @@ jobs:
     - name: Get info
       id: info
       run: |
-        echo "tag-version-hash=$tag-version-hash" >> "$GITHUB_OUTPUT"
-        echo "tag-version=$tag-version" >> "$GITHUB_OUTPUT"
+        echo "tag-version-hash=${tag-hash}" >> "$GITHUB_OUTPUT"
+        echo "tag-version=${tag}" >> "$GITHUB_OUTPUT"
       env:
-        tag-version-hash: $(git describe --tags --match='*.*.*' main)
-        tag-version: $(git describe --tags --match='*.*.*' --abbrev 0 main)
+        tag-hash: $(git describe --tags --match='*.*.*' main)
+        tag: $(git describe --tags --match='*.*.*' --abbrev 0 main)
 
     - name: Return info
       run: |

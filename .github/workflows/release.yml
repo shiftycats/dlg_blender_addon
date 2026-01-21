@@ -30,7 +30,7 @@ jobs:
         file: ${{ env.MANIFEST }}
         key: $.version
 
-    - run: VERSION = $(git tag -l *.*.* | tail -n 1)
+    - run: echo "VERSION = $(git tag -l *.*.* | tail -n 1)"
 
     - run: |
         echo "Tag ver $VERSION"

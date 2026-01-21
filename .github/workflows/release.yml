@@ -42,7 +42,7 @@ jobs:
     - run: echo "${{ steps.manifest-version.outputs.value }} ${{ steps.release-info.outputs.version }}"
 
     - name: Update manifest version
-      if: ${{ steps.manifest-version.outputs.value != steps.release-info.outputs.version }}
+      if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}

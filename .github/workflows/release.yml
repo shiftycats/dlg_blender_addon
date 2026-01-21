@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - id: get-version
-      run: git tag -l *.*.* | tail -n 1)
+      run: git tag -l *.*.* | tail -n 1
     
 
     #- name: Get manifest version

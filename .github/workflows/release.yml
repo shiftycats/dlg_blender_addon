@@ -6,8 +6,8 @@ on:
         type: string
         description: version
   push:
-    tags:
-      - '*.*.*'
+    branches:
+      - main
         
 env:
   GITHUB_TOKEN: ${{ github.token }}

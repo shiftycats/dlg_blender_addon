@@ -36,17 +36,15 @@ jobs:
       id: info
       shell: bash
       run: |
-        latest-tag="$(git describe --tags --match='*.*.*' --abbrev=0 main)"
-        abbrev-tag="$(git describe --tags --match='*.*.*' main)"
-        echo "version=${latest-tag}" >> "$GITHUB_OUTPUT"
-        echo "version-abbrev=${abbrev-tag}" >> "$GITHUB_OUTPUT"
-        echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_OUTPUT"
-        echo "should-update-manifest=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_OUTPUT"
+        echo "version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
+        echo "version-abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
+        echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
+        echo "should-update-manifest=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
         
     - name: Return info
       run: |
-        echo "${{ steps.info.outputs.tag-version }}"
-        echo "${{ steps.info.outputs.tag-version-hash }}"
+        echo "${{ github.env.version }}"
+        echo "${{ github.env.version-abbrev }}"
         echo "is-tag-on-head: $([ ${{ steps.info.outputs.is-tag-on-head }} ] && echo true || echo false)"
         echo "should-update-manifest: $([ ${{ steps.info.outputs.should-update-manufest }} ] && echo true || echo false)"      
 #    - name: Update manifest version

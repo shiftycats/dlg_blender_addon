@@ -38,16 +38,13 @@ jobs:
         echo "VERSION_ABBREV=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
         echo "IS_TAG_ON_HEAD=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
         echo "SHOULD_UPDATE_MANIFEST=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
-        echo "$GITHUB_ENV"
-        
-    - name: Return info
-      run: |
-        echo "$VERSION"
-        echo "$VERSION_ABBREV"
-        echo "is-tag-on-head: $([ $IS_TAG_ON_HEAD ] && echo true || echo false)"
-        echo "should-update-manifest: $([ $SHOULD_UPDATE_MANIFEST ] && echo true || echo false)"
+        echo "VERSION: $VERSION"
+        echo "VERSION_ABBREV: $VERSION_ABBREV"
+        echo "IS_TAG_ON_HEAD: $([ $IS_TAG_ON_HEAD ] && echo true || echo false)"
+        echo "SHOULD_UPDATE_MANIFEST: $([ $SHOULD_UPDATE_MANIFEST ] && echo true || echo false)"
 
     - name: Update manifest version
+      if: ${{ steps.manifest-version.outputs.value != '$VERSION' }}
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
@@ -56,6 +53,9 @@ jobs:
 
     - name: Diff
       run: git diff
+
+    - name: Status
+      run: git status
       
     #- name: Commit files
     #  run: |

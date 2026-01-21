@@ -21,11 +21,9 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v6
-    - id: get-version
-      run: |
-        echo "version=$(git tag -l *.*.* | tail -n 1)" >> "$GITHUB_OUTPUT"
-        git tag -l *.*.* | tail -n 1
-        echo ${{ github.ref }}
+      with:
+        fetch-depth: 0
+    - run: git tag -l
 
     #- name: Get manifest version
     #  id: toml

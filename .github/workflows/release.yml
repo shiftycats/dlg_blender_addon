@@ -15,7 +15,7 @@ env:
 
 jobs:
   release:
-    name: Release
+    name: Make Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,23 +23,27 @@ jobs:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
-
-    - name: Get tag version
-      id: get-version
-      run: echo "value=$(git tag -l *.*.* | tail -n 1)" >> "$GITHUB_OUTPUT"
-
+        
     - name: Get manifest version
       id: toml
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
         path: $.version
+        
+    - name: Get info
+      id: info
+      run: |
+        echo "tag-version-hash=$tag-version-hash >> "$GITHUB_OUTPUT"
+        echo "tag-version=$tag-version" >> "$GITHUB_OUTPUT"
+      env:
+        tag-version-hash: $(git describe --tags --match='*.*.*' main)
+        tag-version: $(git describe --tags --match='*.*.*' --abbrev 0 main)
 
-    - name: Should update manifest?
-      id: should-update-manifest
-      run: echo "value=$([ ${{ steps.toml.outputs.value }} = ${{ steps.get-version.outputs.value }} ] || echo 1)" >> "$GITHUB_OUTPUT"
-
-    - run: echo "${{ steps.should-update-manifest.outputs.value }}"
+    - name: Return info
+      run: |
+        echo "${{ steps.info.outputs.tag-version }}"
+        echo "${{ steps.info.outputs.tag-version-hash }}"
       
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1

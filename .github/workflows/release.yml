@@ -30,11 +30,10 @@ jobs:
         file: ${{ env.MANIFEST }}
         key: $.version
 
-    - id: get_version
-      uses: battila7/get-version-action@v2
+    - run: VERSION = $(git tag -l *.*.* | tail -n 1)
 
     - run: |
-        echo "Tag ver ${{ steps.get_version.outputs.version-without-v}}"
+        echo "Tag ver $VERSION"
         echo "Manifest ${{ steps.toml.outputs.value }}"
       
     - name: Update manifest version

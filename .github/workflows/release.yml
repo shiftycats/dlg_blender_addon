@@ -21,7 +21,7 @@ jobs:
       uses: cssnr/toml-action@v1
       with:
         file: dlg_blender_addon/blender_manifest.toml
-        path: $.project.authors[0].name
+        path: $.version
         value: ${{ github.ref_name }}
           
     - name: Commit files

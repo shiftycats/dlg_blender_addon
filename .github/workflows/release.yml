@@ -39,6 +39,8 @@ jobs:
         echo "version_abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
         echo "is_tag_on_head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_OUTPUT"
 
+    - run: echo "${{ steps.manifest-version.outputs.value }} ${{ steps.release-info.outputs.version }}"
+
     - name: Update manifest version
       if: ${{ steps.manifest-version.outputs.value != steps.release-info.outputs.version }}
       uses: cssnr/toml-action@v1

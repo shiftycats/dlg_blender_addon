@@ -35,9 +35,11 @@ jobs:
         file: ${{ env.MANIFEST }}
         path: $.version
 
-    - run: |
-        echo "${{ steps.toml.outputs.value }}"
-        echo "${{ steps.get-version.outputs.value }}"
+    - name: Should update manifest?
+      id: should-update-manifest
+      run: echo "value=$([ ${{ steps.toml.outputs.value }} = ${{ steps.get-version.outputs.value }} ] || 1)" >> "$GITHUB_OUTPUT"
+
+    - run: echo "${{ steps.should-update-manifest.outputs.value }}"
       
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1

@@ -34,7 +34,7 @@ jobs:
     - name: Get info
       id: info
       run: |
-        echo "tag-version-hash=$tag-version-hash >> "$GITHUB_OUTPUT"
+        echo "tag-version-hash=$tag-version-hash" >> "$GITHUB_OUTPUT"
         echo "tag-version=$tag-version" >> "$GITHUB_OUTPUT"
       env:
         tag-version-hash: $(git describe --tags --match='*.*.*' main)

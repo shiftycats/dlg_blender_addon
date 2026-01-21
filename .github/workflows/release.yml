@@ -1,0 +1,33 @@
+name: Make Release
+on:
+  push:
+   tags:
+     - '*.*.*'
+
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+
+jobs:
+  release:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+    
+    - name: Update manifest version
+      uses: cssnr/toml-action@v1
+      with:
+        file: dlg_blender_addon/blender_manifest.toml
+        path: $.project.authors[0].name
+        value: ${{ github.ref_name }}
+          
+    - name: Commit files
+      run: |
+        git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+        git config --local user.name "${{ github.actor }}"
+        git add -A
+        git commit -m "Updated version to ${{ github.ref_name }}"
+        git push

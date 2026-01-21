@@ -16,6 +16,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref_name }}
     
     - name: Update manifest version
       uses: cssnr/toml-action@v1

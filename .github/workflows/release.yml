@@ -22,8 +22,10 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - id: get-version
-      run: echo "version=$(git tag -l *.*.* | tail -n 1)" >> "$GITHUB_OUTPUT"
-    
+      run: |
+        echo "version=$(git tag -l *.*.* | tail -n 1)" >> "$GITHUB_OUTPUT"
+        git tag -l *.*.* | tail -n 1
+        echo ${{ github.ref }}
 
     #- name: Get manifest version
     #  id: toml

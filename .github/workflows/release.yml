@@ -32,19 +32,15 @@ jobs:
         file: ${{ env.MANIFEST }}
         path: $.version
         
-    - name: Set variables
+    - name: Get release info
+      id: release-info
       run: |
-        echo "VERSION=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
-        echo "VERSION_ABBREV=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
-        echo "IS_TAG_ON_HEAD=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
-        echo "SHOULD_UPDATE_MANIFEST=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
-        echo "VERSION: $VERSION"
-        echo "VERSION_ABBREV: $VERSION_ABBREV"
-        echo "IS_TAG_ON_HEAD: $([ $IS_TAG_ON_HEAD ] && echo true || echo false)"
-        echo "SHOULD_UPDATE_MANIFEST: $([ $SHOULD_UPDATE_MANIFEST ] && echo true || echo false)"
+        echo "version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_OUTPUT"
+        echo "version_abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
+        echo "is_tag_on_head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_OUTPUT"
 
     - name: Update manifest version
-      if: ${{ steps.manifest-version.outputs.value != '$VERSION' }}
+      if: ${{ steps.manifest-version.outputs.value != steps.release-info.outputs.version }}
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}

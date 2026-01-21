@@ -42,6 +42,7 @@ jobs:
     - run: echo "${{ steps.manifest-version.outputs.value }} ${{ steps.release-info.outputs.version }}"
 
     - name: Update manifest version
+      id: manifest-update
       if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
       uses: cssnr/toml-action@v1
       with:
@@ -49,6 +50,8 @@ jobs:
         key: $.version
         value: "$VERSION"
 
+    - run: echo ${{ steps.manifest-update.outcome }}
+    
     - name: Diff
       run: git diff
 

@@ -51,6 +51,7 @@ jobs:
         value: "$VERSION"
 
     - run: echo ${{ steps.manifest-update.outcome }}
+      if: ${{ steps.release-info.outputs.is_tag_on_head }}
     
     - name: Diff
       run: git diff

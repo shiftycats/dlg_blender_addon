@@ -34,8 +34,7 @@ jobs:
     #    file: ${{ env.MANIFEST }}
     #    key: $.version
 
-    - run: |
-        echo "Latest version: ${{ steps.get-version.outputs.version }}"
+    - run: git describe --tags
       
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1

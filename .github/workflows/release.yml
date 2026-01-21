@@ -36,15 +36,15 @@ jobs:
       id: info
       shell: bash
       run: |
-        echo "version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
-        echo "version-abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
+        echo "VERSION=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
+        echo "VERSION_ABBREV=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
         echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
         echo "should-update-manifest=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
         
     - name: Return info
       run: |
-        echo "${{ github.env.version }}"
-        echo "${{ github.env.version-abbrev }}"
+        echo "$VERSION"
+        echo "$VERSION_ABBREV"
         echo "is-tag-on-head: $([ ${{ steps.info.outputs.is-tag-on-head }} ] && echo true || echo false)"
         echo "should-update-manifest: $([ ${{ steps.info.outputs.should-update-manufest }} ] && echo true || echo false)"      
 #    - name: Update manifest version

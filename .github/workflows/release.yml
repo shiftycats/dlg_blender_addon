@@ -35,9 +35,11 @@ jobs:
     - name: Get release info
       id: info
       run: |
+        var=$(git describe --tags --match='*.*.*' --abbrev=0 main)
         echo "tag-version-hash=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
-        echo "tag-version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_OUTPUT"
+        echo "tag-version=$var" >> "$GITHUB_OUTPUT"
         echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)"
+        echo "should-update-manifest="
         
     - name: Return info
       run: |

@@ -35,12 +35,13 @@ jobs:
     - name: Get release info
       id: info
       run: |
-        latest-tag=$(git describe --tags --match='*.*.*' --abbrev=0 main)
-        abbrev-tag=$(git describe --tags --match='*.*.*' main)
         echo "version=$latest-tag" >> "$GITHUB_OUTPUT"
         echo "version-abbrev=$abbrev-tag" >> "$GITHUB_OUTPUT"
         echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_OUTPUT"
-        #echo "should-update-manifest=$([ '$latest-tag' = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_OUTPUT"
+        echo "should-update-manifest=$([ '$latest-tag' = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_OUTPUT"
+      env:
+        latest-tag: $(git describe --tags --match='*.*.*' --abbrev=0 main)
+        abbrev-tag: $(git describe --tags --match='*.*.*' main)
         
     - name: Return info
       run: |

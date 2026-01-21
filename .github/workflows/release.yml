@@ -11,6 +11,7 @@ on:
         
 env:
   GITHUB_TOKEN: ${{ github.token }}
+  MANIFEST: dlg_blender_addon/blender_manifest.toml
 
 jobs:
   release:
@@ -21,12 +22,26 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
-    
-    - name: Update manifest version
-      uses: colathro/toml-editor@1.1.0
+
+    - name: Get manifest version
+      id: toml
+      uses: cssnr/toml-action@v1
       with:
-        file: 'dlg_blender_addon/blender_manifest.toml'
-        key: 'version'
+        file: ${{ env.MANIFEST }}
+        key: $.version
+
+    - id: get_version
+      uses: battila7/get-version-action@v2
+
+    - run: |
+        echo "Tag ver ${{ steps.get_version.outputs.version-without-v}}"
+        echo "Manifest ${{ steps.toml.outputs.value }}"
+      
+    - name: Update manifest version
+      uses: cssnr/toml-action@v1
+      with:
+        file: ${{ github.env.MANIFEST }}
+        key: $.version
         value: '${{ github.event.inputs.version }}'
 
     - name: Get Diff

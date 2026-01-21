@@ -23,16 +23,21 @@ jobs:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
-    - run: git tag -l
 
-    #- name: Get manifest version
-    #  id: toml
-    #  uses: cssnr/toml-action@v1
-    #  with:
-    #    file: ${{ env.MANIFEST }}
-    #    key: $.version
+    - name: Get tag version
+      id: get-version
+      run: echo "value=$(git tag -l *.*.* | tail -n 1)" >> "$GITHUB_OUTPUT"
 
-    - run: git describe --tags
+    - name: Get manifest version
+      id: toml
+      uses: cssnr/toml-action@v1
+      with:
+        file: ${{ env.MANIFEST }}
+        key: $.version
+
+    - run: |
+        echo "${{ steps.toml.outputs.value }}"
+        echo "${{ steps.get-version.outputs.value }}"
       
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1

@@ -20,27 +20,30 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v6
+    - name: Checkout
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         
     - name: Get manifest version
-      id: toml
+      id: manifest-version
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
         path: $.version
         
-    - name: Get info
+    - name: Get release info
       id: info
       run: |
         echo "tag-version-hash=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
         echo "tag-version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_OUTPUT"
-
+        echo "is-tag-on-head=$(git describe --tags --exact-match main 2>/dev/null && echo 1)"
+        
     - name: Return info
       run: |
         echo "${{ steps.info.outputs.tag-version }}"
         echo "${{ steps.info.outputs.tag-version-hash }}"
+        [ "${{ steps.info.outputs.is-tag-on-head }}" ] && echo true || echo false
       
 #    - name: Update manifest version
 #      uses: cssnr/toml-action@v1

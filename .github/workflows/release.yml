@@ -32,30 +32,31 @@ jobs:
         file: ${{ env.MANIFEST }}
         path: $.version
         
-    - name: Get release info
-      id: info
-      shell: bash
+    - name: Set variables
       run: |
         echo "VERSION=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_ENV"
         echo "VERSION_ABBREV=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_ENV"
         echo "IS_TAG_ON_HEAD=$(git describe --tags --exact-match main 2>/dev/null && echo 1)" >> "$GITHUB_ENV"
         echo "SHOULD_UPDATE_MANIFEST=$([ ${latest-tag} = ${{ steps.manifest-version.outputs.value }} ] || echo 1)" >> "$GITHUB_ENV"
+        echo "$GITHUB_ENV"
         
     - name: Return info
       run: |
         echo "$VERSION"
         echo "$VERSION_ABBREV"
         echo "is-tag-on-head: $([ $IS_TAG_ON_HEAD ] && echo true || echo false)"
-        echo "should-update-manifest: $([ $SHOULD_UPDATE_MANIFEST }} ] && echo true || echo false)"      
-#    - name: Update manifest version
-#      uses: cssnr/toml-action@v1
-#      with:
-#        file: ${{ github.env.MANIFEST }}
-#        key: $.version
-#        value: '${{ github.event.inputs.version }}'
+        echo "should-update-manifest: $([ $SHOULD_UPDATE_MANIFEST ] && echo true || echo false)"
 
-#    - name: Get Diff
-#      run: git diff
+    - name: Update manifest version
+      uses: cssnr/toml-action@v1
+      with:
+        file: ${{ github.env.MANIFEST }}
+        key: $.version
+        value: "$VERSION"
+
+    - name: Diff
+      run: git diff
+      
     #- name: Commit files
     #  run: |
     #    git config --local user.email "${{ github.actor }}@users.noreply.github.com"

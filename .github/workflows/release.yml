@@ -37,7 +37,7 @@ jobs:
 
     - name: Should update manifest?
       id: should-update-manifest
-      run: echo "value=$([ ${{ steps.toml.outputs.value }} = ${{ steps.get-version.outputs.value }} ] || 1)" >> "$GITHUB_OUTPUT"
+      run: echo "value=$([ ${{ steps.toml.outputs.value }} = ${{ steps.get-version.outputs.value }} ] || echo 1)" >> "$GITHUB_OUTPUT"
 
     - run: echo "${{ steps.should-update-manifest.outputs.value }}"
       

@@ -50,7 +50,7 @@ jobs:
     - name: Update manifest version
       uses: cssnr/toml-action@v1
       with:
-        file: ${{ github.env.MANIFEST }}
+        file: ${{ env.MANIFEST }}
         key: $.version
         value: "$VERSION"
 

@@ -20,31 +20,30 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+    - uses: actions/checkout@v6
+    - id: get-version
+      run: git tag -l *.*.* | tail -n 1)
+    
 
-    - name: Get manifest version
-      id: toml
-      uses: cssnr/toml-action@v1
-      with:
-        file: ${{ env.MANIFEST }}
-        key: $.version
-
-    - run: echo "VERSION = $(git tag -l *.*.* | tail -n 1)"
+    #- name: Get manifest version
+    #  id: toml
+    #  uses: cssnr/toml-action@v1
+    #  with:
+    #    file: ${{ env.MANIFEST }}
+    #    key: $.version
 
     - run: |
-        echo "Tag ver $VERSION"
-        echo "Manifest ${{ steps.toml.outputs.value }}"
+        echo "Latest version: ${{ steps.get-version.outputs.stdout }}"
       
-    - name: Update manifest version
-      uses: cssnr/toml-action@v1
-      with:
-        file: ${{ github.env.MANIFEST }}
-        key: $.version
-        value: '${{ github.event.inputs.version }}'
+#    - name: Update manifest version
+#      uses: cssnr/toml-action@v1
+#      with:
+#        file: ${{ github.env.MANIFEST }}
+#        key: $.version
+#        value: '${{ github.event.inputs.version }}'
 
-    - name: Get Diff
-      run: git diff
+#    - name: Get Diff
+#      run: git diff
     #- name: Commit files
     #  run: |
     #    git config --local user.email "${{ github.actor }}@users.noreply.github.com"

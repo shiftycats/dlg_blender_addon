@@ -81,7 +81,7 @@ jobs:
         git add -A
         git commit -m "Set version to ${{ env.VERSION }}"
         git tag ${{ env.VERSION }}
-        git push --tags
+        git push origin main --tags
 
     - name: Checkout tag
       if: steps.commit-and-tag.outcome == 'skipped'

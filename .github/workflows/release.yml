@@ -21,7 +21,7 @@ jobs:
     steps:
     - name: Validate input version
       run: |
-        if echo "${{ github.event.inputs.version }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
+        if ! echo "${{ github.event.inputs.version }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
           echo "New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
           exit 1
         fi

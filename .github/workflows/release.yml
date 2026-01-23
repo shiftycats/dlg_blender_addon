@@ -56,13 +56,14 @@ jobs:
     - name: Verify manifest
       id: manifest-verify
       run: |
-        exit 1
+        if [[ "$release-version" != "$manifest-version" ]]; then
+          echo "::error Release and manifest versions mismatch."
+          exit 1
+        fi
       env:
         release-version: ${{ steps.release-info.outputs.version }}
         manifest-version: ${{ steps.manifest-new-version.outputs.value }}
-      
-      
-      
+
     - name: Create release branch
       if: ${{ steps.manifest-update.outcome != 'skipped' }}
       run: |

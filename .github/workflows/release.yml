@@ -56,7 +56,7 @@ jobs:
         file: ${{ env.MANIFEST }}
         path: $.version
 
-    - name: Verify manifest
+    - name: Validate manifest version match
       id: manifest-verify
       run: |
         if [[ "${{ steps.manifest-version.outputs.value }}" != "${{ github.event.inputs.version }}" ]]; then
@@ -65,6 +65,7 @@ jobs:
         fi
 
     - name: Commit manifest and create release tag
+      id: commit-and-tag
       if: steps.manifest-update.outcome == 'success'
       run: |        
         git diff
@@ -74,4 +75,23 @@ jobs:
         git commit -m "Set version to ${{ github.event.inputs.version }}"
         git tag ${{ github.event.inputs.version }}
         git push --tags
-      
+
+    - name: Checkout tag
+      if: steps.commit-and-tag.outcome == 'skipped'
+      run:
+        git checkout tags/${{ github.event.inputs.version }}
+
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.6
+      with:
+        type: 'zip'
+        filename: '${{ env.ADDON_NAME}}-${{ github.event.inputs.version }}.zip'
+        path: '${{ env.ADDON_NAME }}/'
+        
+    - name: Upload Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        artifacts: '${{ env.ADDON_NAME}}-${{ github.event.inputs.version }}.zip'
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.inputs.version }}
+        draft: true

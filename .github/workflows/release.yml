@@ -45,7 +45,24 @@ jobs:
       run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version\2/" ${{ env.MANIFEST }}
       env:
         version: ${{ steps.release-info.outputs.version }}
+    
+    - name: Get new manifest version
+      id: manifest-new-version
+      uses: cssnr/toml-action@v1
+      with:
+        file: ${{ env.MANIFEST }}
+        path: $.version
 
+    - name: Verify manifest
+      id: manifest-verify
+      run: |
+        [ "$release-version" = "$manifest-version" ] || (echo "::error Release and manifest versions mismatch"; exit 1)
+      env:
+        release-version: ${{ steps.release-info.outputs.version }}
+        manifest-version: ${{ steps.manifest-new-version.outputs.value }}
+      
+      
+      
     - name: Create release branch
       if: ${{ steps.manifest-update.outcome != 'skipped' }}
       run: |
@@ -55,7 +72,7 @@ jobs:
         git commit -m "Set version to $version"
       env:
         ver: ${{ steps.release-info.outputs.version }}
-    
+        
     - name: Diff
       run: git diff
 

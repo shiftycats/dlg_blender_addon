@@ -39,24 +39,14 @@ jobs:
         echo "version_abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
         echo "is_tag_on_head=$(git describe --tags --exact-match main 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-    - run: echo "${{ steps.manifest-version.outputs.value }} ${{ steps.release-info.outputs.version }}"
-
     - name: Update manifest version
       id: manifest-update
       if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
-      uses: cssnr/toml-action@v1
-      with:
-        file: ${{ env.MANIFEST }}
-        path: $.version
-        value: "$VERSION"
-
-    - run: echo ${{ steps.manifest-update.outcome }}
-      if: ${{ !steps.release-info.outputs.is_tag_on_head }}
+      run: sed -rei "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version/"
 
     - name: Create release branch
       if: ${{ steps.manifest-update.outcome != 'skipped' }}
       run: |
-        git checkout -b release/$ver tags/$ver
         git config --local user.email "${{ github.actor }}@users.noreply.github.com"
         git config --local user.name "${{ github.actor }}"
         git add -A

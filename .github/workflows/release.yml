@@ -42,7 +42,7 @@ jobs:
     - name: Update manifest version
       id: manifest-update
       if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
-      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version\2/" ${{ env.MANIFEST }}
+      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2\2/" ${{ env.MANIFEST }}
       env:
         version: ${{ steps.release-info.outputs.version }}
     

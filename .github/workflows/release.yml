@@ -35,8 +35,10 @@ jobs:
     - name: Check existing tags
       id: does-tag-exist
       run: |
-        echo "result=$(git show-ref --tags '${{ github.event.inputs.version }}' --quiet && echo 1)" >> "$GITHUB_OUTPUT"
-        echo "Tag ${{ github.event.inputs.version }} already exists. Skipping manifest update."
+        if git show-ref --tags "${{ github.event.inputs.version }}" --quiet; then
+          echo "result=1" >> "$GITHUB_OUTPUT"
+          echo "Tag ${{ github.event.inputs.version }} already exists. Skipping manifest update."
+        fi
 
     - name: Update manifest version
       id: manifest-update

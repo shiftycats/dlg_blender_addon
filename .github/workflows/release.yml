@@ -6,6 +6,10 @@ on:
         type: string
         description: Version
         required: true
+      draft:
+        type: boolean
+        description: Draft Release
+        default: true
         
 env:
   GITHUB_TOKEN: ${{ github.token }}
@@ -83,10 +87,10 @@ jobs:
       run:
         git checkout tags/${{ github.event.inputs.version }}
         
-    #- name: Get previous release tag
-    #  id: previous-tag
-    #  run:
-    #    echo "tag=$(git describe --abbrev=0 --match='*.*.*' --tags `git rev-list --tags --skip=1 --max-count=1`)" >> "$GITHUB_OUTPUT"
+    - name: Get previous release tag
+      id: previous-tag
+      run:
+        echo "tag=$(git describe --abbrev=0 --match='*.*.*' --tags `git rev-list --tags --skip=1 --max-count=1`)" >> "$GITHUB_OUTPUT"
 
     - name: Archive release
       uses: thedoctor0/zip-release@0.7.6
@@ -101,5 +105,7 @@ jobs:
         artifacts: ${{ env.ARTIFACT_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.VERSION }}
+        draft: ${{ github.event.inputs.draft }}
         generateReleaseNotes: true
-        draft: true
+        generateReleaseNotesPreviousTag: ${{ steps.previous-tag.outputs.tag }}
+

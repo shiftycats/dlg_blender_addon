@@ -87,11 +87,6 @@ jobs:
       if: steps.commit-and-tag.outcome == 'skipped'
       run:
         git checkout tags/${{ github.event.inputs.version }}
-        
-    - name: Get previous release tag
-      id: previous-tag
-      run:
-        echo "tag=$(git describe --abbrev=0 --match='*.*.*' --tags `git rev-list --tags --skip=1 --max-count=1`)" >> "$GITHUB_OUTPUT"
 
     - name: Archive release
       uses: thedoctor0/zip-release@0.7.6
@@ -108,5 +103,3 @@ jobs:
         tag: ${{ env.VERSION }}
         draft: ${{ github.event.inputs.draft }}
         generateReleaseNotes: true
-        generateReleaseNotesPreviousTag: ${{ steps.previous-tag.outputs.tag }}
-

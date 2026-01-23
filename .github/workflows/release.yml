@@ -10,7 +10,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ github.token }}
   ADDON_NAME: 'dlg_blender_addon'
-  MANIFEST: 'dlg_blender_addon/blender_manifest.toml'
+  VERSION: ${{ github.event.inputs.version }}
   VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]+($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
 
 jobs:
@@ -22,22 +22,27 @@ jobs:
     steps:
     - name: Validate input version
       run: |
-        if ! echo "${{ github.event.inputs.version }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
+        if ! echo "${{ env.VERSION }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
           echo "Error: New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
           exit 1
         fi
-
+        
     - name: Checkout
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
+    - name: Set variables
+      run: |
+        echo "MANIFEST_PATH=${{ env.ADDON_NAME }}/blender_manifest.toml" >> "$GITHUB_ENV"
+        echo "ARCHIVE_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+      
     - name: Check existing tags
       id: does-tag-exist
       run: |
-        if git show-ref --tags "${{ github.event.inputs.version }}" --quiet; then
+        if git show-ref --tags "${{ env.VERSION }}" --quiet; then
           echo "result=true" >> "$GITHUB_OUTPUT"
-          echo "Tag ${{ github.event.inputs.version }} already exists. Skipping manifest update."
+          echo "Tag ${{ env.VERSION }} already exists. Skipping manifest update."
         else
           echo "result=false" >> "$GITHUB_OUTPUT"
         fi
@@ -45,25 +50,37 @@ jobs:
     - name: Update manifest version
       id: manifest-update
       if: steps.does-tag-exist.outputs.result != 'true'
-      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version\2/" ${{ env.MANIFEST }}
-      env:
-        version: ${{ github.event.inputs.version }}
+      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?).*/\1\"${{ env.VERSION }}\"/" $MANIFEST_PATH
     
     - name: Get manifest version
       id: manifest-version
       uses: cssnr/toml-action@v1
       with:
-        file: ${{ env.MANIFEST }}
+        file: $MANIFEST
         path: $.version
 
     - name: Validate manifest version match
       id: manifest-verify
       run: |
-        if [[ "${{ steps.manifest-version.outputs.value }}" != "${{ github.event.inputs.version }}" ]]; then
+        if [[ "${{ steps.manifest-version.outputs.value }}" != "${{ env.VERSION }}" ]]; then
           echo "Error: Release and manifest versions mismatch."
           exit 1
         fi
 
+    - name: Generate a changelog
+      uses: orhun/git-cliff-action@v4
+      id: git-cliff
+      with:
+        config: cliff.toml
+        args: --verbose
+      env:
+        OUTPUT: CHANGELOG.md
+
+    - name: Print the changelog
+      run: |
+        cat "${{ steps.git-cliff.outputs.changelog }}"
+        exit 1
+        
     - name: Commit manifest and create release tag
       id: commit-and-tag
       if: steps.manifest-update.outcome == 'success'
@@ -72,8 +89,8 @@ jobs:
         git config --local user.email "${{ github.actor }}@users.noreply.github.com"
         git config --local user.name "${{ github.actor }}"
         git add -A
-        git commit -m "Set version to ${{ github.event.inputs.version }}"
-        git tag ${{ github.event.inputs.version }}
+        git commit -m "Set version to ${{ env.VERSION }}"
+        git tag ${{ env.VERSION }}
         git push --tags
 
     - name: Checkout tag
@@ -81,17 +98,17 @@ jobs:
       run:
         git checkout tags/${{ github.event.inputs.version }}
 
-    - name: Archive Release
+    - name: Archive release
       uses: thedoctor0/zip-release@0.7.6
       with:
         type: 'zip'
-        filename: '${{ env.ADDON_NAME}}-${{ github.event.inputs.version }}.zip'
+        filename: '$ARCHIVE_NAME'
         path: '${{ env.ADDON_NAME }}/'
         
-    - name: Upload Release
+    - name: Upload release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: '${{ env.ADDON_NAME}}-${{ github.event.inputs.version }}.zip'
+        artifacts: '$ARCHIVE_NAME'
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.event.inputs.version }}
+        tag: ${{ env.VERSION }}
         draft: true

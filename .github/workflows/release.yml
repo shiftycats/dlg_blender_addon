@@ -39,6 +39,7 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        ref: main
 
     - name: Check existing tags
       id: does-tag-exist

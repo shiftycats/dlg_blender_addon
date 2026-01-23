@@ -4,14 +4,13 @@ on:
     inputs:
       version:
         type: string
-        description: version
-  push:
-    branches:
-      - main
+        description: Version
         
 env:
   GITHUB_TOKEN: ${{ github.token }}
+  ADDON_NAME: 'dlg_blender_addon'
   MANIFEST: 'dlg_blender_addon/blender_manifest.toml'
+  VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
 
 jobs:
   release:
@@ -20,6 +19,13 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: Validate input version
+      run: |
+        if echo "${{ github.event.inputs.version }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
+          echo "New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77).
+          exit 1
+        fi
+
     - name: Checkout
       uses: actions/checkout@v6
       with:
@@ -31,6 +37,16 @@ jobs:
       with:
         file: ${{ env.MANIFEST }}
         path: $.version
+
+    - name: Check existing tags
+      id: does-tag-exist
+      run: |
+        echo "result=$(git show-ref --tags "${{ github.event.inputs.version }}" --quiet && echo 1" >> "$GITHUB_OUTPUT"
+
+    - run: echo "Tag exists"
+      if: ${{ steps.does-tag-exist.outputs.result }}
+
+    - run: exit 0
         
     - name: Get release info
       id: release-info
@@ -42,9 +58,9 @@ jobs:
     - name: Update manifest version
       id: manifest-update
       if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
-      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2\2/" ${{ env.MANIFEST }}
+      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version\2/" ${{ env.MANIFEST }}
       env:
-        version: ${{ steps.release-info.outputs.version }}
+        version: ${{ github.event.inputs.version }}
     
     - name: Get new manifest version
       id: manifest-new-version
@@ -57,22 +73,17 @@ jobs:
       id: manifest-verify
       run: |
         if [[ "${{ steps.release-info.outputs.version }}" != "${{ steps.manifest-new-version.outputs.value }}" ]]; then
-          echo "::error Release and manifest versions mismatch."
+          echo "Error: Release and manifest versions mismatch."
           exit 1
         fi
-      env:
-        release-version: ${{ steps.release-info.outputs.version }}
-        manifest-version: ${{ steps.manifest-new-version.outputs.value }}
 
-    - name: Create release branch
+    - name: Commit manifest
       if: ${{ steps.manifest-update.outcome != 'skipped' }}
       run: |
         git config --local user.email "${{ github.actor }}@users.noreply.github.com"
         git config --local user.name "${{ github.actor }}"
         git add -A
-        git commit -m "Set version to $version"
-      env:
-        ver: ${{ steps.release-info.outputs.version }}
+        git commit -m "Set version to ${{ steps.release-info.outputs.version }}"
         
     - name: Diff
       run: git diff

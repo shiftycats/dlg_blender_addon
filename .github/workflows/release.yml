@@ -56,7 +56,7 @@ jobs:
     - name: Verify manifest
       id: manifest-verify
       run: |
-        if [[ "${release-version}" != "${manifest-version}" ]]; then
+        if [[ "${{ steps.release-info.outputs.version }}" != "${{ steps.manifest-new-version.outputs.value }}" ]]; then
           echo "::error Release and manifest versions mismatch."
           exit 1
         fi

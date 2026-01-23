@@ -41,7 +41,7 @@ jobs:
     - name: Check existing tags
       id: does-tag-exist
       run: |
-        echo "result=$(git show-ref --tags "${{ github.event.inputs.version }}" --quiet && echo 1" >> "$GITHUB_OUTPUT"
+        echo "result=$(git show-ref --tags '${{ github.event.inputs.version }}' --quiet && echo 1" >> "$GITHUB_OUTPUT"
 
     - run: echo "Tag exists"
       if: ${{ steps.does-tag-exist.outputs.result }}

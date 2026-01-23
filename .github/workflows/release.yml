@@ -13,7 +13,7 @@ env:
   VERSION: ${{ github.event.inputs.version }}
   VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]+($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
   MANIFEST_PATH:
-  ARCHIVE_NAME:
+  ARTIFACT_NAME:
 
 jobs:
   release:
@@ -29,7 +29,7 @@ jobs:
           exit 1
         fi
         echo "MANIFEST_PATH=${{ env.ADDON_NAME }}/blender_manifest.toml" >> "$GITHUB_ENV"
-        echo "ARCHIVE_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+        echo "ARTIFACT_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
               
     - name: Checkout
       uses: actions/checkout@v6
@@ -66,20 +66,6 @@ jobs:
           exit 1
         fi
 
-    - name: Generate a changelog
-      uses: orhun/git-cliff-action@v4
-      id: git-cliff
-      with:
-        config: cliff.toml
-        args: --verbose
-      env:
-        OUTPUT: CHANGELOG.md
-
-    - name: Print the changelog
-      run: |
-        cat "${{ steps.git-cliff.outputs.changelog }}"
-        exit 1
-        
     - name: Commit manifest and create release tag
       id: commit-and-tag
       if: steps.manifest-update.outcome == 'success'
@@ -96,6 +82,11 @@ jobs:
       if: steps.commit-and-tag.outcome == 'skipped'
       run:
         git checkout tags/${{ github.event.inputs.version }}
+        
+    #- name: Get previous release tag
+    #  id: previous-tag
+    #  run:
+    #    echo "tag=$(git describe --abbrev=0 --match='*.*.*' --tags `git rev-list --tags --skip=1 --max-count=1`)" >> "$GITHUB_OUTPUT"
 
     - name: Archive release
       uses: thedoctor0/zip-release@0.7.6
@@ -110,4 +101,5 @@ jobs:
         artifacts: ${{ env.ARTIFACT_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.VERSION }}
+        generateReleaseNotes: true
         draft: true

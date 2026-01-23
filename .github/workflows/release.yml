@@ -71,20 +71,28 @@ jobs:
           exit 1
         fi
 
-    - name: Commit manifest and create release tag
-      id: commit-and-tag
-      if: steps.manifest-update.outcome == 'success'
-      run: |        
-        git diff
-        git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-        git config --local user.name "${{ github.actor }}"
-        git add -A
-        git commit -m "Set version to ${{ env.VERSION }}"
-        git tag ${{ env.VERSION }}
-        git push origin main --tags
+    #- name: Commit manifest and create release tag
+    #  id: commit-and-tag
+    #  if: steps.manifest-update.outcome == 'success'
+    #  run: |        
+    #    git diff
+    #    git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+    #    git config --local user.name "${{ github.actor }}"
+    #    git add -A
+    #    git commit -m "Set version to ${{ env.VERSION }}"
+    #    git tag ${{ env.VERSION }}
+    #    git push origin main --tags
+    
+    - name: Create Commit By GitHub API
+      id: commit
+      uses: suzuki-shunsuke/commit-action@v0.1.0
+      with:
+        branch: main
+
+    - run: exit 1
 
     - name: Checkout tag
-      if: steps.commit-and-tag.outcome == 'skipped'
+      if: steps.commit.outcome == 'skipped'
       run:
         git checkout tags/${{ github.event.inputs.version }}
 

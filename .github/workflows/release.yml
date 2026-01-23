@@ -5,6 +5,7 @@ on:
       version:
         type: string
         description: Version
+        required: true
         
 env:
   GITHUB_TOKEN: ${{ github.token }}
@@ -22,7 +23,7 @@ jobs:
     - name: Validate input version
       run: |
         if ! echo "${{ github.event.inputs.version }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
-          echo "New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
+          echo "Error: New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
           exit 1
         fi
 
@@ -30,40 +31,22 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
-        
-    - name: Get manifest version
-      id: manifest-version
-      uses: cssnr/toml-action@v1
-      with:
-        file: ${{ env.MANIFEST }}
-        path: $.version
 
     - name: Check existing tags
       id: does-tag-exist
       run: |
         echo "result=$(git show-ref --tags '${{ github.event.inputs.version }}' --quiet && echo 1)" >> "$GITHUB_OUTPUT"
-
-    - run: echo "Tag exists"
-      if: ${{ steps.does-tag-exist.outputs.result }}
-
-    - run: exit 0
-        
-    - name: Get release info
-      id: release-info
-      run: |
-        echo "version=$(git describe --tags --match='*.*.*' --abbrev=0 main)" >> "$GITHUB_OUTPUT"
-        echo "version_abbrev=$(git describe --tags --match='*.*.*' main)" >> "$GITHUB_OUTPUT"
-        echo "is_tag_on_head=$(git describe --tags --exact-match main 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        echo "Tag ${{ github.event.inputs.version }} already exists. Skipping manifest update."
 
     - name: Update manifest version
       id: manifest-update
-      if: steps.manifest-version.outputs.value != steps.release-info.outputs.version
+      if: ! steps.does-tag-exist.outputs.result
       run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?)[0-9]*\.[0-9]*\..*/\1\2$version\2/" ${{ env.MANIFEST }}
       env:
         version: ${{ github.event.inputs.version }}
     
-    - name: Get new manifest version
-      id: manifest-new-version
+    - name: Get manifest version
+      id: manifest-version
       uses: cssnr/toml-action@v1
       with:
         file: ${{ env.MANIFEST }}
@@ -72,18 +55,18 @@ jobs:
     - name: Verify manifest
       id: manifest-verify
       run: |
-        if [[ "${{ steps.release-info.outputs.version }}" != "${{ steps.manifest-new-version.outputs.value }}" ]]; then
+        if [[ ${{ steps.manifest-version.outputs.value }}" != "${{ github.event.inputs.version }}" ]]; then
           echo "Error: Release and manifest versions mismatch."
           exit 1
         fi
 
     - name: Commit manifest
-      if: ${{ steps.manifest-update.outcome != 'skipped' }}
+      if: steps.manifest-update.outcome != 'skipped'
       run: |
         git config --local user.email "${{ github.actor }}@users.noreply.github.com"
         git config --local user.name "${{ github.actor }}"
         git add -A
-        git commit -m "Set version to ${{ steps.release-info.outputs.version }}"
+        git commit -m "Set version to ${{ github.event.inputs.version }}"
         
     - name: Diff
       run: git diff

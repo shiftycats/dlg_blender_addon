@@ -84,15 +84,17 @@ jobs:
     #    git push origin main --tags
     
         
-    - name: Add & Commit
-      id: commit
-      uses: EndBug/add-and-commit@v9.1.4
+    - name: Commit manifest
+      uses: IAreKyleW00t/verified-bot-commit@v2.1.2
       with:
-        add: ${{ env.MANIFEST_PATH }}
-        tag: ${{ env.VERSION }}
-        default_author: github_actions
-        push: true
-      
+        files: ${{ env.ARTIFACT_NAME }}
+        message: 'Set version to ${{ env.VERSION }}'
+
+    - name: Create tag and push
+      id: commit
+      run: |
+        git tag ${{ env.VERSION }}
+        git push origin main --tags
       
     - run: exit 1
 

@@ -64,24 +64,14 @@ jobs:
           exit 1
         fi
 
-    - name: Commit manifest
-      if: steps.manifest-update.outcome != 'skipped'
-      run: |
+    - name: Commit manifest and create release tag
+      if: steps.manifest-update.outcome == 'success'
+      run: |        
+        git diff
         git config --local user.email "${{ github.actor }}@users.noreply.github.com"
         git config --local user.name "${{ github.actor }}"
         git add -A
         git commit -m "Set version to ${{ github.event.inputs.version }}"
-        
-    - name: Diff
-      run: git diff
-
-    - name: Status
-      run: git status
+        git tag ${{ github.event.inputs.version }}
+        git push --tags
       
-    #- name: Commit files
-    #  run: |
-    #    git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-    #    git config --local user.name "${{ github.actor }}"
-    #    git add -A
-    #   git commit -m "Updated version to ${{ github.ref_name }}"
-    #    git push

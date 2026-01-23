@@ -11,7 +11,7 @@ env:
   GITHUB_TOKEN: ${{ github.token }}
   ADDON_NAME: 'dlg_blender_addon'
   MANIFEST: 'dlg_blender_addon/blender_manifest.toml'
-  VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
+  VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]+($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
 
 jobs:
   release:
@@ -59,7 +59,7 @@ jobs:
     - name: Verify manifest
       id: manifest-verify
       run: |
-        if [[ ${{ steps.manifest-version.outputs.value }}" != "${{ github.event.inputs.version }}" ]]; then
+        if [[ "${{ steps.manifest-version.outputs.value }}" != "${{ github.event.inputs.version }}" ]]; then
           echo "Error: Release and manifest versions mismatch."
           exit 1
         fi

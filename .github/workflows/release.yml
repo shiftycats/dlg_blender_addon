@@ -12,6 +12,8 @@ env:
   ADDON_NAME: 'dlg_blender_addon'
   VERSION: ${{ github.event.inputs.version }}
   VERSION_REGEX: '[0-9]+\.[0-9]+\.[0-9]+($|[-\+][a-zA-Z0-9]+)($|\+[a-zA-Z0-9]+$)' # MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA]
+  MANIFEST_PATH:
+  ARCHIVE_NAME:
 
 jobs:
   release:
@@ -20,23 +22,20 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Validate input version
+    - name: Validate inputs and set variables
       run: |
         if ! echo "${{ env.VERSION }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
-          echo "Error: New version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
+          echo "Error: Provided version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
           exit 1
         fi
-        
+        echo "MANIFEST_PATH=${{ env.ADDON_NAME }}/blender_manifest.toml" >> "$GITHUB_ENV"
+        echo "ARCHIVE_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+              
     - name: Checkout
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
-    - name: Set variables
-      run: |
-        echo "MANIFEST_PATH=${{ env.ADDON_NAME }}/blender_manifest.toml" >> "$GITHUB_ENV"
-        echo "ARCHIVE_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
-      
     - name: Check existing tags
       id: does-tag-exist
       run: |
@@ -50,16 +49,16 @@ jobs:
     - name: Update manifest version
       id: manifest-update
       if: steps.does-tag-exist.outputs.result != 'true'
-      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?).*/\1\"${{ env.VERSION }}\"/" $MANIFEST_PATH
+      run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?).*/\1\"${{ env.VERSION }}\"/" ${{ env.MANIFEST_PATH }}
     
     - name: Get manifest version
       id: manifest-version
       uses: cssnr/toml-action@v1
       with:
-        file: '$MANIFEST_PATH'
+        file: '${{ env.MANIFEST_PATH }}'
         path: '$.version'
 
-    - name: Validate manifest version match
+    - name: Verify manifest version match
       id: manifest-verify
       run: |
         if [[ "${{ steps.manifest-version.outputs.value }}" != "${{ env.VERSION }}" ]]; then
@@ -102,13 +101,13 @@ jobs:
       uses: thedoctor0/zip-release@0.7.6
       with:
         type: 'zip'
-        filename: '$ARCHIVE_NAME'
+        filename: ${{ env.ARTIFACT_NAME }}
         path: '${{ env.ADDON_NAME }}/'
         
     - name: Upload release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: '$ARCHIVE_NAME'
+        artifacts: ${{ env.ARTIFACT_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.VERSION }}
         draft: true

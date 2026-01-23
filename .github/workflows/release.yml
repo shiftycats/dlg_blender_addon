@@ -83,12 +83,16 @@ jobs:
     #    git tag ${{ env.VERSION }}
     #    git push origin main --tags
     
-    - name: Create Commit By GitHub API
+        
+    - name: Add & Commit
       id: commit
-      uses: suzuki-shunsuke/commit-action@v0.1.0
+      uses: EndBug/add-and-commit@v9.1.4
       with:
-        branch: main
-
+        add: ${{ env.MANIFEST_PATH }}
+        tag: ${{ env.VERSION }}
+        push: true
+      
+      
     - run: exit 1
 
     - name: Checkout tag

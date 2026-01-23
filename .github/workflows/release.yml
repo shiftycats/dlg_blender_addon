@@ -90,6 +90,7 @@ jobs:
       with:
         add: ${{ env.MANIFEST_PATH }}
         tag: ${{ env.VERSION }}
+        default_author: github_actions
         push: true
       
       

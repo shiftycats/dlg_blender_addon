@@ -1,6 +1,8 @@
 name: Update
 on:
   workflow_dispatch:
+  release:
+    types: [ published, unpublished ]
         
 env:
   GITHUB_TOKEN: ${{ github.token }}
@@ -35,3 +37,13 @@ jobs:
           digest: ${{ fromJson(steps.release.outputs.assets)[0].digest }}
           size: ${{ fromJson(steps.release.outputs.assets)[0].size }}
           url: ${{ fromJson(steps.release.outputs.assets)[0].browser_download_url }}
+          
+      - name: Commit manifest
+        id: commit
+        uses: IAreKyleW00t/verified-bot-commit@v2.1.2
+        with:
+          files: 'repository/index.json'
+          message: 'Set latest repository version to ${{ steps.release.outputs.tag_name }}'
+
+      - run: |
+          git push origin extension-repository

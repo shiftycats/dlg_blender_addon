@@ -52,7 +52,7 @@ jobs:
 
     - name: Update manifest version
       id: manifest-update
-      if: steps.does-tag-exist.outputs.result != 'true'
+      if: steps.does-tag-exist.outputs.result == 'false'
       run: sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?).*/\1\"${{ env.VERSION }}\"/" ${{ env.MANIFEST_PATH }}
     
     - name: Get manifest version
@@ -75,7 +75,7 @@ jobs:
       uses: IAreKyleW00t/verified-bot-commit@v2.1.2
       if: steps.manifest-update.outcome == 'success'
       with:
-        files: foo
+        files: ${{ env.MANIFEST_PATH }}
         message: 'Set version to ${{ env.VERSION }}'
 
     - name: Create tag and push
@@ -86,7 +86,7 @@ jobs:
         git push ${{ github.ref }} --tags
 
     - name: Checkout tag
-      if: steps.commit.outcome == 'skipped'
+      if: steps.does-tag-exist.outputs.result == 'true'
       run:
         git checkout tags/${{ github.event.inputs.version }}
 

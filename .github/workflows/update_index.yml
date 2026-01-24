@@ -18,4 +18,19 @@ jobs:
         uses: cardinalby/git-get-release-action@1.2.4
         with:
           latest: true
-      - run: echo ${{ fromJson(steps.release.outputs.assets)[0].digest }}
+          
+      - name: checkout
+        uses: actions/checkout@v6
+        with: 
+          ref: extension-repository
+
+      - name: Do stuff
+        run: |
+          git checkout tags/${{ steps.release.outputs.tag_name }} -- dlg_blender_addon/blender_manifest.toml
+          python update_repository.py --manifest "dlg_blender_addon/blender_manifest.toml" --url "$url" --size "$size" --digest "$digest" repository/index.json
+          git diff
+          git status          
+        env:
+          digest: ${{ fromJson(steps.release.outputs.assets)[0].digest }}
+          size: ${{ fromJson(steps.release.outputs.assets)[0].size }}
+          url: ${{ fromJson(steps.release.outputs.assets)[0].browser_download_url }}

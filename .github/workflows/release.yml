@@ -29,19 +29,16 @@ jobs:
     - name: Validate inputs and set variables
       run: |
         if ! echo "${{ env.VERSION }}" | grep -E "${{ env.VERSION_REGEX }}" &>/dev/null; then
-          echo "Error: Provided version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
+          echo "::error::Provided version is invalid! Must be MAJOR.MINOR.PATCH[-PRERELEASE][+METADATA] (for example, 1.0.0, 1.0.0-rc, or 1.0.0+75d0a77)."
           exit 1
         fi
         echo "MANIFEST_PATH=${{ env.ADDON_NAME }}/blender_manifest.toml" >> "$GITHUB_ENV"
         echo "ARTIFACT_NAME=${{ env.ADDON_NAME}}-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
-        echo "${{ github.ref }}"
-        exit 1
               
     - name: Checkout
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
-        ref: main
 
     - name: Check existing tags
       id: does-tag-exist
@@ -72,33 +69,21 @@ jobs:
           echo "Error: Release and manifest versions mismatch."
           exit 1
         fi
-
-    #- name: Commit manifest and create release tag
-    #  id: commit-and-tag
-    #  if: steps.manifest-update.outcome == 'success'
-    #  run: |        
-    #    git diff
-    #    git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-    #    git config --local user.name "${{ github.actor }}"
-    #    git add -A
-    #    git commit -m "Set version to ${{ env.VERSION }}"
-    #    git tag ${{ env.VERSION }}
-    #    git push origin main --tags
-    
         
     - name: Commit manifest
+      id: commit
       uses: IAreKyleW00t/verified-bot-commit@v2.1.2
+      if: steps.manifest-update.outcome == 'success'
       with:
-        files: ${{ env.MANIFEST_PATH }}
+        files: foo
         message: 'Set version to ${{ env.VERSION }}'
 
     - name: Create tag and push
-      id: commit
+      id: tag-and-push
+      if: steps.commit.outputs.commit
       run: |
         git tag ${{ env.VERSION }}
-        git push origin main --tags
-      
-    - run: exit 1
+        git push ${{ github.ref }} --tags
 
     - name: Checkout tag
       if: steps.commit.outcome == 'skipped'

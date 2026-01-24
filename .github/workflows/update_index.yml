@@ -2,7 +2,7 @@ name: Update
 on:
   workflow_dispatch:
   release:
-    types: [ published, created, deleted ]
+    types: [released, deleted]
         
 env:
   GITHUB_TOKEN: ${{ github.token }}

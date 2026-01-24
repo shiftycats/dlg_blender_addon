@@ -1,0 +1,21 @@
+name: Update
+on:
+  workflow_dispatch:
+        
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+  ADDON_NAME: 'dlg_blender_addon'
+
+jobs:
+  release:
+    name: Update index
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+    steps:
+      - name: git-get-release-action
+        id: release
+        uses: cardinalby/git-get-release-action@1.2.4
+        with:
+          latest: true
+      - run: echo ${{ steps.release.outputs.assets }}

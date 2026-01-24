@@ -18,4 +18,4 @@ jobs:
         uses: cardinalby/git-get-release-action@1.2.4
         with:
           latest: true
-      - run: echo ${{ fromJson(steps.release.outputs.assets)[0] }}
+      - run: echo ${{ fromJson(steps.release.outputs.assets)[0].digest }}

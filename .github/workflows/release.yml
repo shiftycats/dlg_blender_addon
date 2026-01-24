@@ -87,7 +87,8 @@ jobs:
     - name: Commit manifest
       uses: IAreKyleW00t/verified-bot-commit@v2.1.2
       with:
-        files: ${{ env.ARTIFACT_NAME }}
+        files: |
+          ${{ env.ARTIFACT_NAME }}
         message: 'Set version to ${{ env.VERSION }}'
 
     - name: Create tag and push

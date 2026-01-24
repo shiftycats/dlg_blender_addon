@@ -95,7 +95,7 @@ jobs:
     - name: Archive release
       run: |
         cd ${{ env.ADDON_NAME }}
-        zip -r ${{ env.ARTIFACT_NAME }}.zip .
+        zip -r ../${{ env.ARTIFACT_NAME }}.zip .
         
     - name: Upload release
       uses: ncipollo/release-action@v1.20.0

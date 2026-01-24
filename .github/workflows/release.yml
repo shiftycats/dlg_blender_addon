@@ -100,7 +100,7 @@ jobs:
     - name: Upload release
       uses: ncipollo/release-action@v1.20.0
       with:
-        artifacts: '${{ env.ARTIFACT_NAME }}.zip'
+        artifacts: ${{ env.ARTIFACT_NAME }}.zip
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.VERSION }}
         draft: ${{ github.event.inputs.draft }}

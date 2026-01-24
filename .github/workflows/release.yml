@@ -55,7 +55,7 @@ jobs:
       if: steps.does-tag-exist.outputs.result == 'false'
       run: |
         sed -i -re "s/(^[[:space:]]*version[[:space:]]*=[[:space:]]*)([\"\']?).*/\1\"${{ env.VERSION }}\"/" ${{ env.MANIFEST_PATH }}
-        echo "changed=$(git diff --quiet ${{ env.MANIFEST_PATH }} || echo true)" >> "$GITHUB_OUTPUT"
+        echo "made-changes=$(git diff --quiet ${{ env.MANIFEST_PATH }} && echo false || echo true)" >> "$GITHUB_OUTPUT"
     
     - name: Get manifest version
       id: manifest-version
@@ -75,7 +75,7 @@ jobs:
     - name: Commit manifest
       id: commit
       uses: IAreKyleW00t/verified-bot-commit@v2.1.2
-      if: steps.manifest-update.outputs.changed == 'true'
+      if: steps.manifest-update.outputs.made-changes == 'true'
       with:
         files: ${{ env.MANIFEST_PATH }}
         message: 'Set version to ${{ env.VERSION }}'

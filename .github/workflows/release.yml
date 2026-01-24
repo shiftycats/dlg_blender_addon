@@ -83,7 +83,7 @@ jobs:
       if: steps.commit.outputs.commit
       run: |
         git tag ${{ env.VERSION }}
-        git push ${{ github.ref_name }} --tags
+        git push origin ${{ github.ref }} --tags
 
     - name: Checkout tag
       if: steps.does-tag-exist.outputs.result == 'true'

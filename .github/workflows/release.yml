@@ -97,7 +97,8 @@ jobs:
       with:
         type: 'zip'
         filename: ${{ env.ARTIFACT_NAME }}
-        path: '${{ env.ADDON_NAME }}/*'
+        path: './${{ env.ADDON_NAME }}/*'
+        custom: '-r'
         
     - name: Upload release
       uses: ncipollo/release-action@v1.20.0

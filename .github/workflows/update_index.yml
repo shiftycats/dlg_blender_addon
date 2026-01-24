@@ -42,6 +42,7 @@ jobs:
         id: commit
         uses: IAreKyleW00t/verified-bot-commit@v2.1.2
         with:
+          ref: extension-repository
           files: 'repository/index.json'
           message: 'Set latest repository version to ${{ steps.release.outputs.tag_name }}'
 

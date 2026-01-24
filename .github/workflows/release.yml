@@ -73,14 +73,14 @@ jobs:
     - name: Commit manifest
       id: commit
       uses: IAreKyleW00t/verified-bot-commit@v2.1.2
-      if: steps.manifest-update.outcome == 'success'
+      if: steps.manifest-update.outcome != 'skipped'
       with:
         files: ${{ env.MANIFEST_PATH }}
         message: 'Set version to ${{ env.VERSION }}'
 
     - name: Create tag and push
       id: tag-and-push
-      if: steps.commit.outputs.commit
+      if: steps.commit.outcome != 'skipped'
       run: |
         git tag ${{ env.VERSION }}
         git push origin ${{ github.ref }} --tags

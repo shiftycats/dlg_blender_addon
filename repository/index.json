@@ -7,7 +7,7 @@
       "id": "dlg_blender_addon",
       "name": "Darklight Games Blender Tools",
       "tagline": "A toolbox for animations",
-      "version": "0.3.0",
+      "version": "1.0.2",
       "type": "add-on",
       "maintainer": "Yurii Ti <mooncats@tutanota.com>",
       "license": [
@@ -18,9 +18,9 @@
       "tags": [
         "Animation"
       ],
-      "archive_url": "https://github.com/DarklightGames/dlg_blender_addon/releases/download/0.3.0/dlg_blender_addon-main-0.3.0.zip",
-      "archive_size": 9422,
-      "archive_hash": "sha256:045b0a90f3038561077b4146684f9aff1540e0751a168d5810bd0f4383a83e32"
+      "archive_url": "https://github.com/shiftycats/dlg_blender_addon/releases/download/1.0.2/dlg_blender_addon-1.0.2.zip",
+      "archive_size": 10289,
+      "archive_hash": "sha256:f762bebee39d9bd03ed5231776fe076e2ee3270ef2c940909349ef75fe147fa9"
     }
   ]
 }

@@ -18,6 +18,7 @@ jobs:
         uses: cardinalby/git-get-release-action@1.2.4
         with:
           latest: true
+          fetch-depth: 0
           
       - name: checkout
         uses: actions/checkout@v6

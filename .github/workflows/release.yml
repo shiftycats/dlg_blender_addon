@@ -1,4 +1,4 @@
-name: Make Release
+name: release
 on:
   workflow_dispatch:
     inputs:
@@ -21,7 +21,7 @@ env:
 
 jobs:
   release:
-    name: Make Release
+    name: release
     runs-on: ubuntu-slim
     permissions:
       contents: write

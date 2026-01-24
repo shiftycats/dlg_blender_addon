@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "dlg_blender_addon"
-version = "17.0.0"
+version = "19.1.2"
 name = "Darklight Games Blender Tools"
 tagline = "A toolbox for animations"
 maintainer = "Yurii Ti <mooncats@tutanota.com>"

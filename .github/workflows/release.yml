@@ -85,7 +85,7 @@ jobs:
       if: steps.commit.outcome != 'skipped'
       run: |
         git tag ${{ env.VERSION }}
-        git push origin ${{ github.ref }} --tags
+        git push origin ${{ github.ref_name }} --tags
 
     - name: Checkout tag
       if: steps.does-tag-exist.outputs.result == 'true'
